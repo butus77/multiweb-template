@@ -1,3 +1,17 @@
+export async function generateMetadata({params}:{params: Promise<{locale:string}>}) {
+  const {locale} = await params;
+  const base = 'https://example.com'; // ← később saját domain
+  return {
+    title: 'MultiWeb',
+    description: 'Mobil-first, többnyelvű Next.js sablon.',
+    alternates: {
+      languages: { hu: `${base}/hu`, sr: `${base}/sr`, de: `${base}/de`, en: `${base}/en` }
+    }
+  };
+}
+
+
+
 // src/app/[locale]/layout.tsx
 import {NextIntlClientProvider} from 'next-intl';
 import {notFound} from 'next/navigation';
