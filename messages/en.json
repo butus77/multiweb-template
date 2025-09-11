@@ -1,0 +1,14 @@
+{
+  "Meta": {
+    "title": "Starter template",
+    "description": "Mobile-first, multilingual Next.js template."
+  },
+  "Nav": {
+    "home": "Home",
+    "about": "About"
+  },
+  "Hero": {
+    "title": "Welcome to your project template!",
+    "subtitle": "From here your future work begins."
+  }
+}
