@@ -1,14 +1,6 @@
 {
-  "Meta": {
-    "title": "Kezdő sablon",
-    "description": "Mobil-first, többnyelvű Next.js sablon."
-  },
-  "Nav": {
-    "home": "Főoldal",
-    "about": "Rólunk"
-  },
-  "Hero": {
-    "title": "Üdv a projekt sablonban!",
-    "subtitle": "Innen indul minden jövőbeli munkád."
-  }
+  "Meta": { "title": "Kezdő sablon", "description": "Mobil-first, többnyelvű Next.js sablon." },
+  "Nav": { "home": "Főoldal", "about": "Rólunk" },
+  "Hero": { "title": "Üdv a projekt sablonban!", "subtitle": "Innen indul minden jövőbeli munkád." },
+  "About": { "body": "Ez egy mintalap a sablonban." }
 }

@@ -1,14 +1,7 @@
 {
-  "Meta": {
-    "title": "Start šablon",
-    "description": "Mobil-prvo, višejezični Next.js šablon."
-  },
-  "Nav": {
-    "home": "Početna",
-    "about": "O nama"
-  },
-  "Hero": {
-    "title": "Dobro došli u vaš projektni šablon!",
-    "subtitle": "Odavde počinju vaši budući radovi."
-  }
+  "Meta": { "title": "Start šablon", "description": "Mobil-prvo, višejezični Next.js šablon." },
+  "Nav": { "home": "Početna", "about": "O nama" },
+  "Hero": { "title": "Dobro došli u vaš projektni šablon!", "subtitle": "Odavde počinju vaši budući radovi." },
+  "About": { "body": "Ovo je primer stranice u šablonu." }
 }
+

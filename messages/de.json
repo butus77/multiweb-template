@@ -1,14 +1,7 @@
 {
-  "Meta": {
-    "title": "Startvorlage",
-    "description": "Mobile-first, mehrsprachige Next.js-Vorlage."
-  },
-  "Nav": {
-    "home": "Startseite",
-    "about": "Über uns"
-  },
-  "Hero": {
-    "title": "Willkommen bei deiner Projektvorlage!",
-    "subtitle": "Von hier aus starten deine künftigen Arbeiten."
-  }
+  "Meta": { "title": "Startvorlage", "description": "Mobile-first, mehrsprachige Next.js-Vorlage." },
+  "Nav": { "home": "Startseite", "about": "Über uns" },
+  "Hero": { "title": "Willkommen bei deiner Projektvorlage!", "subtitle": "Von hier aus starten deine künftigen Arbeiten." },
+  "About": { "body": "Dies ist eine Beispielseite in der Vorlage." }
 }
+
