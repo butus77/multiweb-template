@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import {usePathname} from "next/navigation";
-
-type Locale = 'hu' | 'sr' | 'de' | 'en';
+import type {Locale} from "@/i18n";
 
 export default function LocaleSwitcher({current}:{current: Locale}) {
   const pathname = usePathname() || '/';
@@ -14,7 +13,6 @@ export default function LocaleSwitcher({current}:{current: Locale}) {
   const locales: Locale[] = ['hu','sr','de','en'];
 
   function setLocaleCookie(l: Locale) {
-    // 1 évig érvényes, teljes site-ra
     document.cookie = `NEXT_LOCALE=${l}; Path=/; Max-Age=31536000; SameSite=Lax`;
   }
 
@@ -28,7 +26,7 @@ export default function LocaleSwitcher({current}:{current: Locale}) {
             key={l}
             href={href}
             aria-current={active ? 'true' : undefined}
-            onClick={() => setLocaleCookie(l)}  /* ← EZ AZ 1 SOR A LÉNYEG */
+            onClick={() => setLocaleCookie(l)}
             className={`px-2 py-1 rounded text-xs uppercase
               ${active ? 'border font-semibold' : 'hover:underline'}`}
           >
@@ -39,4 +37,4 @@ export default function LocaleSwitcher({current}:{current: Locale}) {
     </div>
   );
 }
-
+// src/app/page.tsx

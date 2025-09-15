@@ -1,56 +1,66 @@
 'use client';
 
 import {useForm} from 'react-hook-form';
-import {z} from 'zod';
 import {zodResolver} from '@hookform/resolvers/zod';
-import {useFormState} from 'react-dom';
-import {ContactSchema, sendContact} from '@/app/actions';
-
-type FormData = z.infer<typeof ContactSchema>;
+import {ContactSchema, type ContactInput} from '@/lib/contact';
+import {submitContact, type ActionResult} from '@/app/actions';
+import {useState} from 'react';
 
 export default function ContactPage() {
-  const [state, formAction] = useFormState(sendContact, null);
-  const {register, handleSubmit, formState: {errors, isSubmitting}} = useForm<FormData>({
-    resolver: zodResolver(ContactSchema as any)
-  });
+  const {register, handleSubmit, formState: {errors, isSubmitting}, reset} =
+    useForm<ContactInput>({resolver: zodResolver(ContactSchema)});
+
+  const [result, setResult] = useState<ActionResult | null>(null);
+
+  const onSubmit = async (values: ContactInput) => {
+    const fd = new FormData();
+    (Object.entries(values) as [keyof ContactInput, string][])
+      .forEach(([k, v]) => fd.append(k, v));
+    const res = await submitContact(null, fd);
+    setResult(res);
+    if (res.ok) reset();
+  };
 
   return (
-    <section className="max-w-xl mx-auto grid gap-4">
-      <h1 className="text-3xl font-extrabold">Kapcsolat</h1>
-      <p className="text-neutral-700">Írj üzenetet, válaszolunk.</p>
+    <section className="max-w-lg grid gap-4">
+      <h1 className="text-2xl font-bold">Kapcsolat</h1>
 
-      <form action={formAction} onSubmit={handleSubmit(() => {})} className="grid gap-4">
-        <div>
-          <label className="block text-sm mb-1">Név</label>
-          <input {...register('name')} className="w-full border rounded-lg p-2" placeholder="Név" />
-          {errors.name && <p className="text-sm text-red-600">{errors.name.message as string}</p>}
+      {!result?.ok && result?.fieldErrors && (
+        <div className="text-sm text-red-600">
+          {Object.entries(result.fieldErrors).map(([k, msg]) => (
+            <div key={k}>{msg}</div>
+          ))}
         </div>
+      )}
 
-        <div>
-          <label className="block text-sm mb-1">Email</label>
-          <input {...register('email')} className="w-full border rounded-lg p-2" placeholder="email@cim.hu" />
-          {errors.email && <p className="text-sm text-red-600">{errors.email.message as string}</p>}
-        </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="grid gap-3">
+        <label className="grid gap-1">
+          <span>Név</span>
+          <input className="border rounded px-3 py-2" {...register('name')} />
+          {errors.name && <span className="text-red-600 text-sm">{errors.name.message}</span>}
+        </label>
 
-        <div>
-          <label className="block text-sm mb-1">Üzenet</label>
-          <textarea {...register('message')} className="w-full border rounded-lg p-2 min-h-32" placeholder="Miben segíthetünk?" />
-          {errors.message && <p className="text-sm text-red-600">{errors.message.message as string}</p>}
-        </div>
+        <label className="grid gap-1">
+          <span>E-mail</span>
+          <input className="border rounded px-3 py-2" type="email" {...register('email')} />
+          {errors.email && <span className="text-red-600 text-sm">{errors.email.message}</span>}
+        </label>
 
-        {/* Honeypot mező – rejtve (botok belefutnak) */}
-        <input {...register('website')} className="hidden" tabIndex={-1} autoComplete="off" />
+        <label className="grid gap-1">
+          <span>Üzenet</span>
+          <textarea className="border rounded px-3 py-2" rows={5} {...register('message')} />
+          {errors.message && <span className="text-red-600 text-sm">{errors.message.message}</span>}
+        </label>
 
         <button
+          className="px-4 py-2 rounded border disabled:opacity-60"
           type="submit"
           disabled={isSubmitting}
-          className="px-4 py-2 rounded-xl border shadow-sm disabled:opacity-50"
         >
           {isSubmitting ? 'Küldés…' : 'Küldés'}
         </button>
 
-        {state?.ok && <p className="text-green-700">Köszönjük! Üzeneted megérkezett.</p>}
-        {state?.errors && <p className="text-red-700">Kérlek ellenőrizd a mezőket.</p>}
+        {result?.ok && <p className="text-green-700">Köszi! Üzeneted megkaptuk.</p>}
       </form>
     </section>
   );

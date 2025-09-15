@@ -11,11 +11,11 @@ import {
 import {Separator} from "@/components/ui/separator";
 import NavLink from "@/components/NavLink";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
-import ThemeToggle from "@/components/ThemeToggle";
 import {useState} from "react";
+import type {Locale} from "@/i18n";
 
 type Props = {
-  locale: string;
+  locale: Locale;
   labels: { home: string; about: string /* contact?: string */ };
 };
 
@@ -35,8 +35,7 @@ export default function HeaderClient({locale, labels}: Props) {
           <NavLink href={homeHref}>{labels.home}</NavLink>
           <NavLink href={aboutHref}>{labels.about}</NavLink>
           {/* <NavLink href={contactHref}>{labels.contact}</NavLink> */}
-          <LocaleSwitcher current={locale as any} />
-          <ThemeToggle />
+          <LocaleSwitcher current={locale} />
         </nav>
 
         {/* Mobilmenü gomb */}
@@ -47,7 +46,6 @@ export default function HeaderClient({locale, labels}: Props) {
             </SheetTrigger>
 
             <SheetContent side="right" className="w-64">
-              {/* Hozzáférhetőség: a dialognak kötelező cím/leírás */}
               <SheetHeader className="sr-only">
                 <SheetTitle>Navigation menu</SheetTitle>
                 <SheetDescription>Site sections and language switch</SheetDescription>
@@ -66,13 +64,11 @@ export default function HeaderClient({locale, labels}: Props) {
                 <NavLink href={aboutHref} onClick={() => setOpen(false)}>
                   {labels.about}
                 </NavLink>
-                {/* <NavLink href={contactHref} onClick={() => setOpen(false)}>{labels.contact}</NavLink> */}
 
                 <Separator className="my-2" />
 
-                {/* Nyelvváltó + téma mobilon is */}
-                <LocaleSwitcher current={locale as any} />
-                <ThemeToggle />
+                {/* Nyelvváltó mobilon is */}
+                <LocaleSwitcher current={locale} />
               </div>
             </SheetContent>
           </Sheet>
@@ -81,6 +77,7 @@ export default function HeaderClient({locale, labels}: Props) {
     </header>
   );
 }
+
 // A HeaderClient komponens a fejlécet valósítja meg
 // Mobilon egy "hamburger" menü gomb jelenik meg, ami egy oldalsó panelt nyit meg
 // Ebben a panelben találhatók a navigációs linkek, nyelvváltó és téma váltó

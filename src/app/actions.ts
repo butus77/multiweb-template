@@ -1,31 +1,37 @@
 'use server';
 
-import {z} from 'zod';
+import {ContactSchema, type ContactInput} from '@/lib/contact';
 
-export const ContactSchema = z.object({
-  name: z.string().min(2, 'Név túl rövid'),
-  email: z.string().email('Érvénytelen email'),
-  message: z.string().min(10, 'Üzenet túl rövid'),
-  // honeypot – igazi felhasználó üresen hagyja
-  website: z.string().max(0).optional()
-});
+export type ActionResult =
+  | { ok: true }
+  | {
+      ok: false;
+      fieldErrors?: Record<string, string>;
+      formError?: string;
+    };
 
-export async function sendContact(prevState: any, formData: FormData) {
-  const data = {
-    name: String(formData.get('name') ?? ''),
-    email: String(formData.get('email') ?? ''),
-    message: String(formData.get('message') ?? ''),
-    website: String(formData.get('website') ?? '')
-  };
+export async function submitContact(
+  _prevState: unknown,              // Next server action API signature
+  formData: FormData
+): Promise<ActionResult> {
+  // FormData -> plain object
+  const raw = Object.fromEntries(formData.entries());
 
-  const parsed = ContactSchema.safeParse(data);
+  const parsed = ContactSchema.safeParse(raw);
   if (!parsed.success) {
-    return { ok:false, errors: parsed.error.flatten().fieldErrors };
+    const fieldErrors: Record<string, string> = {};
+    const flat = parsed.error.flatten();
+    for (const [key, msgs] of Object.entries(flat.fieldErrors)) {
+      if (msgs && msgs.length) fieldErrors[key] = msgs[0]!;
+    }
+    return {ok: false, fieldErrors};
   }
 
-  // TODO: itt küldhetsz emailt (pl. Resend/SMTP), most csak logolunk
-  console.log('CONTACT_FORM', parsed.data);
+  const data: ContactInput = parsed.data;
 
-  await new Promise(r => setTimeout(r, 400)); // kis latency-szimuláció
-  return { ok:true };
+  // TODO: itt küldd el e-mailben / külső API-ra / DB-be
+  // pl. await sendEmail(data)
+
+  return {ok: true};
 }
+
