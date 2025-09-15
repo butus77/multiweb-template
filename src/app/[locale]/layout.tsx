@@ -5,19 +5,22 @@ import {locales, defaultLocale, type Locale} from '../../i18n';
 import '@/app/globals.css';
 import Header from '@/components/Header';
 import {getBaseUrl} from '@/lib/site';
-
+import { Toaster } from "sonner";  // ÚJ
 
 /** A build tudja, mely locale-ok léteznek */
 export async function generateStaticParams() {
   return [{locale: 'hu'}, {locale: 'sr'}, {locale: 'de'}, {locale: 'en'}];
 }
 
-/** SEO / hreflang (később cseréld a base-t saját domainre) */
+/** SEO / hreflang + OpenGraph + Twitter (a base automatikusan DEV/PROD szerint) */
 export async function generateMetadata() {
-  const base = 'https://example.com';
+  const base = getBaseUrl();
+  const title = 'MultiWeb';
+  const description = 'Mobil-first, többnyelvű Next.js sablon.';
+
   return {
-    title: 'MultiWeb',
-    description: 'Mobil-first, többnyelvű Next.js sablon.',
+    title,
+    description,
     alternates: {
       languages: {
         hu: `${base}/hu`,
@@ -26,7 +29,20 @@ export async function generateMetadata() {
         en: `${base}/en`
       }
     },
-    metadataBase: new URL(base)
+    metadataBase: new URL(base),
+    openGraph: {
+      type: 'website',
+      url: base,
+      title,
+      description
+      // Ha lesz OG kép: images: [{ url: `${base}/og.png`, width: 1200, height: 630 }]
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description
+      // images: [`${base}/og.png`]
+    }
   };
 }
 
@@ -47,14 +63,15 @@ export default async function LocaleLayout(
   }
 
   return (
-    <NextIntlClientProvider locale={l} messages={messages}>
-      <div className="mx-auto max-w-5xl px-4">
-        <Header locale={l} />
-        <main className="py-8">{children}</main>
-        <Footer />
-      </div>
-    </NextIntlClientProvider>
-  );
+  <NextIntlClientProvider locale={l} messages={messages}>
+    <div className="mx-auto max-w-5xl px-4">
+      <Header locale={l} />
+      <main className="py-8">{children}</main>
+      <Footer />
+    </div>
+    <Toaster richColors position="top-right" />  {/* ÚJ */}
+  </NextIntlClientProvider>
+);
 }
 
 function Footer() {
@@ -64,3 +81,4 @@ function Footer() {
     </footer>
   );
 }
+
