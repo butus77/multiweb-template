@@ -1,7 +1,20 @@
 {
-  "Meta": { "title": "Start šablon", "description": "Mobil-prvo, višejezični Next.js šablon." },
-  "Nav": { "home": "Početna", "about": "O nama" },
-  "Hero": { "title": "Dobro došli u vaš projektni šablon!", "subtitle": "Odavde počinju vaši budući radovi." },
-  "About": { "body": "Ovo je primer stranice u šablonu." }
+  "Meta": {
+    "title": "MultiWeb",
+    "description": "Мобил-фёрст, вишејезични Next.js шаблон."
+  },
+  "Nav": {
+    "home": "Почетна",
+    "about": "О нама"
+  },
+  "Hero": {
+    "title": "Добродошли у MultiWeb шаблон",
+    "subtitle": "Респонзивна, брза и вишејезична основа."
+  },
+  "AboutPage": {
+    "title": "О нама",
+    "body": "Ово је основни вишејезични шаблон за Next.js."
+  }
 }
+
 

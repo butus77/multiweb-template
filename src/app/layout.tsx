@@ -1,6 +1,32 @@
 import "@/app/globals.css";
 import { Inter } from "next/font/google";
 import ThemeProvider from "@/components/ThemeProvider";
+import {getTranslations} from 'next-intl/server';
+import {getBaseUrl} from '@/lib/site';
+import type {Locale} from '@/i18n';
+// A Google Fonts Inter betűtípus konfigurációja
+export async function generateMetadata({params}:{params: Promise<{locale: string}>}) {
+  const {locale} = await params;
+  const base = getBaseUrl();
+
+  // Lokalizált cím/description a Meta namespace-ből
+  const t = await getTranslations({locale: locale as Locale, namespace: 'Meta'});
+
+  return {
+    title: t('title'),
+    description: t('description'),
+    alternates: {
+      languages: {
+        hu: `${base}/hu`,
+        sr: `${base}/sr`,
+        de: `${base}/de`,
+        en: `${base}/en`
+      }
+    },
+    metadataBase: new URL(base)
+  };
+}
+
 
 const inter = Inter({
   subsets: ["latin", "latin-ext"],

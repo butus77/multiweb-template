@@ -1,11 +1,13 @@
-import {getTranslations} from 'next-intl/server';
+'use client';
+import {useTranslations} from "next-intl";
 
-export default async function AboutPage() {
-  const t = await getTranslations();
+export default function AboutPage() {
+  const t = useTranslations("AboutPage");
   return (
-    <section className="prose max-w-none">
-      <h1>{t('Nav.about')}</h1>
-      <p>{t('About.body')}</p>
-    </section>
+    <article className="prose max-w-none">
+      <h1>{t("title")}</h1>
+      <p>{t("body")}</p>
+    </article>
   );
 }
+

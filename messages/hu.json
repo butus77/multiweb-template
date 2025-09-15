@@ -1,6 +1,19 @@
 {
-  "Meta": { "title": "Kezdő sablon", "description": "Mobil-first, többnyelvű Next.js sablon." },
-  "Nav": { "home": "Főoldal", "about": "Rólunk" },
-  "Hero": { "title": "Üdv a projekt sablonban!", "subtitle": "Innen indul minden jövőbeli munkád." },
-  "About": { "body": "Ez egy mintalap a sablonban." }
+  "Meta": {
+    "title": "MultiWeb",
+    "description": "Mobil-first, többnyelvű Next.js sablon."
+  },
+  "Nav": {
+    "home": "Kezdőlap",
+    "about": "Rólunk"
+  },
+  "Hero": {
+    "title": "Üdv a MultiWeb sablonban",
+    "subtitle": "Reszponzív, gyors és többnyelvű alap."
+  },
+  "AboutPage": {
+    "title": "Rólunk",
+    "body": "Ez egy alap többnyelvű sablon Next.js-hez."
+  }
 }
+

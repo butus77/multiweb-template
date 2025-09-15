@@ -1,7 +1,20 @@
 {
-  "Meta": { "title": "Startvorlage", "description": "Mobile-first, mehrsprachige Next.js-Vorlage." },
-  "Nav": { "home": "Startseite", "about": "Über uns" },
-  "Hero": { "title": "Willkommen bei deiner Projektvorlage!", "subtitle": "Von hier aus starten deine künftigen Arbeiten." },
-  "About": { "body": "Dies ist eine Beispielseite in der Vorlage." }
+  "Meta": {
+    "title": "MultiWeb",
+    "description": "Mobile-First, mehrsprachiges Next.js-Template."
+  },
+  "Nav": {
+    "home": "Start",
+    "about": "Über uns"
+  },
+  "Hero": {
+    "title": "Willkommen beim MultiWeb-Template",
+    "subtitle": "Responsiv, schnell und mehrsprachig."
+  },
+  "AboutPage": {
+    "title": "Über uns",
+    "body": "Dies ist eine grundlegende mehrsprachige Vorlage für Next.js."
+  }
 }
+
 

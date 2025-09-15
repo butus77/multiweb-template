@@ -7,16 +7,16 @@ type Locale = 'hu' | 'sr' | 'de' | 'en';
 
 export default function LocaleSwitcher({current}:{current: Locale}) {
   const pathname = usePathname() || '/';
-
-  // Szétszedjük az aktuális útvonalat (pl. /hu/about → ["hu","about"])
-  const raw = pathname.split(/[?#]/)[0];       // levágjuk query/hash részt
+  const raw = pathname.split(/[?#]/)[0];
   const segments = raw.split('/').filter(Boolean);
-
-  // Ha nincs locale a path elején, úgy kezeljük, mintha csak ["hu"] lenne.
-  // De nálunk a router mindig /[locale]/... formában van, így a 0. elem a nyelv.
   const rest = segments.slice(1).join('/');
 
   const locales: Locale[] = ['hu','sr','de','en'];
+
+  function setLocaleCookie(l: Locale) {
+    // 1 évig érvényes, teljes site-ra
+    document.cookie = `NEXT_LOCALE=${l}; Path=/; Max-Age=31536000; SameSite=Lax`;
+  }
 
   return (
     <div className="flex gap-2" role="group" aria-label="Válassz nyelvet">
@@ -28,6 +28,7 @@ export default function LocaleSwitcher({current}:{current: Locale}) {
             key={l}
             href={href}
             aria-current={active ? 'true' : undefined}
+            onClick={() => setLocaleCookie(l)}  /* ← EZ AZ 1 SOR A LÉNYEG */
             className={`px-2 py-1 rounded text-xs uppercase
               ${active ? 'border font-semibold' : 'hover:underline'}`}
           >
@@ -38,3 +39,4 @@ export default function LocaleSwitcher({current}:{current: Locale}) {
     </div>
   );
 }
+

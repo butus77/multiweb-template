@@ -1,11 +1,15 @@
-import {getTranslations} from 'next-intl/server';
+// src/app/[locale]/page.tsx
+'use client';
 
-export default async function HomePage() {
-  const t = await getTranslations();
+import {useTranslations} from 'next-intl';
+
+export default function HomePage() {
+  const t = useTranslations('Hero');
   return (
     <section className="grid gap-4">
-      <h1 className="text-3xl font-extrabold">{t('Hero.title')}</h1>
-      <p className="text-base text-neutral-700">{t('Hero.subtitle')}</p>
+      <h1 className="text-3xl font-extrabold">{t('title')}</h1>
+      <p className="text-base text-muted-foreground">{t('subtitle')}</p>
     </section>
   );
 }
+// src/app/page.tsx
