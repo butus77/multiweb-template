@@ -11,33 +11,34 @@ import {
 import {Separator} from "@/components/ui/separator";
 import NavLink from "@/components/NavLink";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
+import ThemeToggle from "@/components/ThemeToggle";
 import {useState} from "react";
 import type {Locale} from "@/i18n";
-import ThemeToggle from "@/components/ThemeToggle"; // Import the ThemeToggle component
 
 type Props = {
   locale: Locale;
-  labels: { home: string; about: string; contact?: string };
+  labels: { home: string; about: string; contact: string };
 };
 
 export default function HeaderClient({locale, labels}: Props) {
   const [open, setOpen] = useState(false);
+
   const homeHref = `/${locale}`;
   const aboutHref = `/${locale}/about`;
- const contactHref = `/${locale}/contact`;
+  const contactHref = `/${locale}/contact`;
 
   return (
     <header className="sticky top-0 z-50 bg-white/70 backdrop-blur border-b">
       <div className="flex items-center justify-between py-3 mx-auto max-w-5xl px-4">
         <a href={homeHref} className="font-bold">MultiWeb</a>
-        <ThemeToggle />  {/* Add the ThemeToggle component here */}
 
         {/* Asztali menü */}
         <nav className="hidden md:flex items-center gap-4 text-sm">
           <NavLink href={homeHref}>{labels.home}</NavLink>
           <NavLink href={aboutHref}>{labels.about}</NavLink>
-           <NavLink href={contactHref}>{labels.contact}</NavLink>
+          <NavLink href={contactHref}>{labels.contact}</NavLink>
           <LocaleSwitcher current={locale} />
+          <ThemeToggle />
         </nav>
 
         {/* Mobilmenü gomb */}
@@ -47,7 +48,8 @@ export default function HeaderClient({locale, labels}: Props) {
               ☰ Menü
             </SheetTrigger>
 
-            <SheetContent side="right" className="w-64">
+            <SheetContent side="right" className="w-72">
+              {/* A11y cím/desc a dialoghoz */}
               <SheetHeader className="sr-only">
                 <SheetTitle>Navigation menu</SheetTitle>
                 <SheetDescription>Site sections and language switch</SheetDescription>
@@ -60,17 +62,21 @@ export default function HeaderClient({locale, labels}: Props) {
 
                 <Separator />
 
+                {/* *** ITT A LÉNYEG: a Kapcsolat link mobilon is *** */}
                 <NavLink href={homeHref} onClick={() => setOpen(false)}>
                   {labels.home}
                 </NavLink>
                 <NavLink href={aboutHref} onClick={() => setOpen(false)}>
                   {labels.about}
                 </NavLink>
+                <NavLink href={contactHref} onClick={() => setOpen(false)}>
+                  {labels.contact}
+                </NavLink>
 
                 <Separator className="my-2" />
 
-                {/* Nyelvváltó mobilon is */}
                 <LocaleSwitcher current={locale} />
+                <ThemeToggle />
               </div>
             </SheetContent>
           </Sheet>
@@ -79,6 +85,7 @@ export default function HeaderClient({locale, labels}: Props) {
     </header>
   );
 }
+
 
 // A HeaderClient komponens a fejlécet valósítja meg
 // Mobilon egy "hamburger" menü gomb jelenik meg, ami egy oldalsó panelt nyit meg
