@@ -1,6 +1,6 @@
 'use server';
 
-import {ContactSchema, type ContactInput} from '@/lib/contact';
+import {ContactSchema} from '@/lib/contact';
 
 export type ActionResult =
   | { ok: true }
@@ -22,15 +22,11 @@ export async function submitContact(
     return {ok: false, fieldErrors};
   }
 
-  const data: ContactInput = parsed.data;
-
-  // Itt tedd meg a valódi küldést (pl. email / db / 3rd-party):
-  // await sendEmail(data)
-
-  // Kis késleltetés a demo kedvéért
-  // await new Promise(r => setTimeout(r, 400));
+  // Itt jöhet valós feldolgozás (email / DB / stb.):
+  // const {name, email, message} = parsed.data;
 
   return {ok: true};
 }
+
 
 

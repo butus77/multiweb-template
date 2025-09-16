@@ -2,34 +2,56 @@
 
 import {useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
-import {ContactSchema, type ContactInput} from '@/lib/contact';
-import {submitContact, type ActionResult} from '@/app/actions';
-import {useState} from 'react';
+import {ContactSchema, type ContactInput, type ContactErrorCode} from '@/lib/contact';
+import {submitContact} from '@/app/actions';
 import {useTranslations} from 'next-intl';
 import {Toaster, toast} from 'sonner';
 
 export default function ContactPage() {
   const t = useTranslations('Contact');
-  const te = (key: string) => t(`errors.${key}` as any); // kulcsok a zod üzenetkódjai
 
-  const {register, handleSubmit, formState: {errors, isSubmitting}, reset} =
-    useForm<ContactInput>({resolver: zodResolver(ContactSchema)});
+  // A Zod hibakódok lokalizált feliratai (típusos, nincs any)
+  const errorLabels: Record<ContactErrorCode, string> = {
+    name_short: t('errors.name_short'),
+    email_invalid: t('errors.email_invalid'),
+    message_short: t('errors.message_short')
+  };
 
-  const [result, setResult] = useState<ActionResult | null>(null);
+  const {
+    register,
+    handleSubmit,
+    formState: {errors, isSubmitting},
+    reset
+  } = useForm<ContactInput>({resolver: zodResolver(ContactSchema)});
 
   const onSubmit = async (values: ContactInput) => {
     const fd = new FormData();
-    (Object.entries(values) as [keyof ContactInput, string][])
-      .forEach(([k, v]) => fd.append(k, v));
+    fd.append('name', values.name);
+    fd.append('email', values.email);
+    fd.append('message', values.message);
+
     const res = await submitContact(null, fd);
-    setResult(res);
+
     if (res.ok) {
       toast.success(t('success'));
       reset();
-    } else if (res.fieldErrors) {
-      // RHF errorok mellett extra form hiba is jelezhető
-      Object.values(res.fieldErrors).forEach(code => toast.error(te(code)));
+      return;
     }
+
+    if (res.fieldErrors) {
+      // A szerver action kódjai is ContactErrorCode-ok
+      Object.values(res.fieldErrors).forEach((code) => {
+        const key = code as ContactErrorCode;
+        toast.error(errorLabels[key] ?? t('errors.message_short'));
+      });
+    }
+  };
+
+  // Segédfüggvény: RHF hiba kód → lokalizált szöveg
+  const renderError = (code?: string) => {
+    if (!code) return null;
+    const key = code as ContactErrorCode;
+    return <span className="text-red-600 text-sm">{errorLabels[key]}</span>;
   };
 
   return (
@@ -41,19 +63,19 @@ export default function ContactPage() {
         <label className="grid gap-1">
           <span>{t('name')}</span>
           <input className="border rounded px-3 py-2" {...register('name')} />
-          {errors.name && <span className="text-red-600 text-sm">{te(errors.name.message!)}</span>}
+          {renderError(errors.name?.message)}
         </label>
 
         <label className="grid gap-1">
           <span>{t('email')}</span>
           <input className="border rounded px-3 py-2" type="email" {...register('email')} />
-          {errors.email && <span className="text-red-600 text-sm">{te(errors.email.message!)}</span>}
+          {renderError(errors.email?.message)}
         </label>
 
         <label className="grid gap-1">
           <span>{t('message')}</span>
           <textarea className="border rounded px-3 py-2" rows={5} {...register('message')} />
-          {errors.message && <span className="text-red-600 text-sm">{te(errors.message.message!)}</span>}
+          {renderError(errors.message?.message)}
         </label>
 
         <button
