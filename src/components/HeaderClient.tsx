@@ -13,28 +13,30 @@ import NavLink from "@/components/NavLink";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
 import {useState} from "react";
 import type {Locale} from "@/i18n";
+import ThemeToggle from "@/components/ThemeToggle"; // Import the ThemeToggle component
 
 type Props = {
   locale: Locale;
-  labels: { home: string; about: string /* contact?: string */ };
+  labels: { home: string; about: string; contact?: string };
 };
 
 export default function HeaderClient({locale, labels}: Props) {
   const [open, setOpen] = useState(false);
   const homeHref = `/${locale}`;
   const aboutHref = `/${locale}/about`;
-  // const contactHref = `/${locale}/contact`;
+ const contactHref = `/${locale}/contact`;
 
   return (
     <header className="sticky top-0 z-50 bg-white/70 backdrop-blur border-b">
       <div className="flex items-center justify-between py-3 mx-auto max-w-5xl px-4">
         <a href={homeHref} className="font-bold">MultiWeb</a>
+        <ThemeToggle />  {/* Add the ThemeToggle component here */}
 
         {/* Asztali menü */}
         <nav className="hidden md:flex items-center gap-4 text-sm">
           <NavLink href={homeHref}>{labels.home}</NavLink>
           <NavLink href={aboutHref}>{labels.about}</NavLink>
-          {/* <NavLink href={contactHref}>{labels.contact}</NavLink> */}
+           <NavLink href={contactHref}>{labels.contact}</NavLink>
           <LocaleSwitcher current={locale} />
         </nav>
 

@@ -1,33 +1,32 @@
 'use client';
 
-import {useTheme} from "next-themes";
-import {Sun, Moon} from "lucide-react";
-import {useEffect, useState} from "react";
+import {useTheme} from './ThemeProvider';
 
 export default function ThemeToggle() {
-  const {theme, setTheme, systemTheme} = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const {theme, setTheme} = useTheme();
 
-  useEffect(() => setMounted(true), []);
-  if (!mounted) return null; // elkerüli a hydration villogást
+  const cycle = () => {
+    setTheme(theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light');
+  };
 
-  const current = theme === "system" ? systemTheme : theme;
-  const next = current === "dark" ? "light" : "dark";
+  const label =
+    theme === 'light' ? '☀️' :
+    theme === 'dark'  ? '🌙' :
+                        '🖥️';
 
   return (
     <button
       type="button"
-      onClick={() => setTheme(next!)}
-      aria-label={`Váltás ${current === "dark" ? "világos" : "sötét"} módra`}
-      className="inline-flex items-center gap-2 px-2 py-1 rounded border hover:bg-muted text-sm"
+      onClick={cycle}
+      aria-label="Váltás világos/sötét/system"
+      className="px-2 py-1 rounded border text-sm"
+      title={`Theme: ${theme}`}
     >
-      {current === "dark" ? <Sun size={16} /> : <Moon size={16} />}
-      <span className="hidden sm:inline">
-        {current === "dark" ? "Világos" : "Sötét"}
-      </span>
+      {label}
     </button>
   );
 }
+// src/app/page.tsx
 // A ThemeToggle komponens a téma (világos/sötét) váltására szolgál
 // A useTheme hook segítségével éri el a jelenlegi témát és a váltó függvényt
 // A useEffect hook biztosítja, hogy a komponens csak a kliens oldalon renderelődjön
