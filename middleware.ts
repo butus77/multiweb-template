@@ -1,19 +1,36 @@
-// middleware.ts
+import {NextResponse} from 'next/server';
 import createMiddleware from 'next-intl/middleware';
-import {locales, defaultLocale} from './src/i18n';
+import {locales, defaultLocale} from '@/i18n';
 
-export default createMiddleware({
+const intlMiddleware = createMiddleware({
   locales,
   defaultLocale,
-  localeDetection: true
+  localePrefix: 'never'
 });
 
+export function middleware(req: Request) {
+  // @ts-ignore – NextRequest típus a buildben meglesz
+  const {pathname} = req.nextUrl as {pathname: string};
+
+  // 1) KIZÁRÁSOK: ne nyúljunk ezekhez az útvonalakhoz
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/api') ||
+    pathname === '/robots.txt' ||
+    pathname === '/sitemap.xml' ||
+    pathname === '/favicon.ico' ||
+    // bármilyen statikus fájl (pl. .png, .jpg, .css, .js stb.)
+    /\.[a-zA-Z0-9]+$/.test(pathname)
+  ) {
+    return NextResponse.next();
+  }
+
+  // 2) Minden másra menjen a next-intl middleware
+  // @ts-ignore – NextRequest típus a buildben meglesz
+  return intlMiddleware(req);
+}
+
 export const config = {
-  matcher: ['/((?!api|_next|_vercel|.*\\..*).*)']
+  // Fusson minden útvonalon, a fenti if úgyis kiszedi a kivételeket
+  matcher: ['/((?!_next).*)']
 };
-// The matcher above excludes paths starting with:
-// - /api (API routes)
-// - /_next (Next.js internals)
-// - /_vercel (Vercel internals)
-// - any path containing a dot (e.g., static files like .css, .js, images, etc.)
-// You can adjust the matcher based on your specific needs. 
