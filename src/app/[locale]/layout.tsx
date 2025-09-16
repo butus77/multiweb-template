@@ -5,16 +5,24 @@ import {locales, defaultLocale, type Locale} from '../../i18n';
 import '@/app/globals.css';
 import Header from '@/components/Header';
 import {getBaseUrl} from '@/lib/site';
-import { Toaster } from "sonner";  // ÚJ
+import ToasterPortal from '@/components/ToasterPortal';
+// HA nem használod ténylegesen, töröld a következő sort, különben ESLint unused:
+// import JsonLd from '@/components/JsonLd';
 
-/** A build tudja, mely locale-ok léteznek */
+/** Build: mely locale-ok léteznek */
 export async function generateStaticParams() {
   return [{locale: 'hu'}, {locale: 'sr'}, {locale: 'de'}, {locale: 'en'}];
 }
 
-/** SEO / hreflang + OpenGraph + Twitter (a base automatikusan DEV/PROD szerint) */
-export async function generateMetadata() {
+/** SEO / hreflang + OpenGraph + Twitter (nyelvspecifikus URL) */
+export async function generateMetadata(
+  {params}: {params: Promise<{locale: string}>}
+) {
+  const {locale: raw} = await params;
+  const l: Locale = (locales as readonly string[]).includes(raw) ? (raw as Locale) : defaultLocale;
+
   const base = getBaseUrl();
+  const url = `${base}/${l}`;
   const title = 'MultiWeb';
   const description = 'Mobil-first, többnyelvű Next.js sablon.';
 
@@ -32,16 +40,15 @@ export async function generateMetadata() {
     metadataBase: new URL(base),
     openGraph: {
       type: 'website',
-      url: base,
+      url,
+      siteName: 'MultiWeb',
       title,
       description
-      // Ha lesz OG kép: images: [{ url: `${base}/og.png`, width: 1200, height: 630 }]
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description
-      // images: [`${base}/og.png`]
     }
   };
 }
@@ -50,11 +57,9 @@ export async function generateMetadata() {
 export default async function LocaleLayout(
   {children, params}: {children: React.ReactNode; params: Promise<{locale: string}>}
 ) {
-  // A Next stringet ad → itt szűkítjük a saját unionunkra
   const {locale: raw} = await params;
   const l: Locale = (locales as readonly string[]).includes(raw) ? (raw as Locale) : defaultLocale;
 
-  // Fordítások típusosan
   let messages: AbstractIntlMessages;
   try {
     messages = (await import(`../../../messages/${l}.json`)).default as AbstractIntlMessages;
@@ -63,15 +68,16 @@ export default async function LocaleLayout(
   }
 
   return (
-  <NextIntlClientProvider locale={l} messages={messages}>
-    <div className="mx-auto max-w-5xl px-4">
-      <Header locale={l} />
-      <main className="py-8">{children}</main>
-      <Footer />
-    </div>
-    <Toaster richColors position="top-right" />  {/* ÚJ */}
-  </NextIntlClientProvider>
-);
+    <NextIntlClientProvider locale={l} messages={messages}>
+      <div className="mx-auto max-w-5xl px-4">
+        <Header locale={l} />
+        <main className="py-8">{children}</main>
+        <Footer />
+      </div>
+      {/* Sonner toaster (kliens komponens) */}
+      <ToasterPortal />
+    </NextIntlClientProvider>
+  );
 }
 
 function Footer() {
@@ -81,4 +87,6 @@ function Footer() {
     </footer>
   );
 }
+// Ezt a Footer komponenst át lehet helyezni egy külön fájlba is, ha szükséges.
+
 
