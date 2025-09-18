@@ -104,10 +104,10 @@ function Footer({locale}: {locale: Locale}) {
         <span>© {new Date().getFullYear()} MultiWeb</span>
         <a href={`/${locale}`} className="flex items-center gap-2 font-bold">
           <Image
-            src="/logo.png"
+            src="/logo40x40b.png"
             alt="MultiWeb logo"
-            width={26}
-            height={26}
+            width={40}
+            height={40}
             priority
           />
           <span className="sr-only">MultiWeb</span>
