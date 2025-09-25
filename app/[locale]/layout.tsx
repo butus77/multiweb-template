@@ -58,7 +58,7 @@ export default async function LocaleLayout(
   // Fordítások betöltése
   let messages: AbstractIntlMessages;
   try {
-    messages = (await import(`../../../messages/${l}.json`)).default as AbstractIntlMessages;
+    messages = (await import(`../../messages/${l}.json`)).default as AbstractIntlMessages;
   } catch {
     notFound();
   }
