@@ -64,34 +64,55 @@ npm run lint    # eslint ellenőrzés
 
 ## Könyvtárstruktúra
 ```
-src/
-  app/
-    layout.tsx                     # root layout (theme, font)
-    sitemap.ts                     # SEO – sitemap.xml
-    robots.ts                      # SEO – robots.txt
-    [locale]/
-      layout.tsx                   # locale layout (i18n provider, Header, Footer)
-      page.tsx                     # kezdőoldal
-      about/page.tsx               # rólunk
-      contact/page.tsx             # kapcsolat
-  components/
-    Header.tsx
-    HeaderClient.tsx
-    NavLink.tsx
-    LocaleSwitcher.tsx
-    ToasterPortal.tsx
-    JsonLd.tsx
-  lib/
-    site.ts                        # getBaseUrl() – abszolút URL DEV/PROD
-  i18n.ts                          # locales, defaultLocale
-messages/
-  hu.json  en.json  de.json  sr.json
-middleware.ts                      # next-intl middleware + robots/sitemap kizárás
-public/
-  logo.png                         # UI + JSON-LD logó
-  og.png                           # megosztási kép (1200x630 ajánlott)
+.
+├─ app/                       # App Router oldalak, layoutok, route-k
+│  ├─ [locale]/               # Nyelvi gyökér (hu, de, en, sr)
+│  │  ├─ layout.tsx           # Locale-specifikus provider + SEO
+│  │  ├─ page.tsx             # Kezdőoldal per lokálé
+│  │  ├─ about/ …             # Aloldalak
+│  │  └─ contact/ …           # Kapcsolat oldal
+│  ├─ globals.css             # Globális stílusok (Tailwind)
+│  ├─ sitemap.ts              # Sitemap
+│  └─ robots.ts               # Robots
+├─ components/                # Újrafelhasználható UI komponensek
+│  ├─ Header.tsx
+│  ├─ ToasterPortal.tsx
+│  └─ JsonLd.tsx
+├─ lib/                       # Segédfüggvények, config
+│  └─ site.ts
+├─ messages/                  # Fordítási JSON-ok (next-intl)
+│  ├─ hu.json
+│  ├─ de.json
+│  ├─ en.json
+│  └─ sr.json
+├─ public/                    # Statikus fájlok (og.png, logo, képek)
+│  ├─ og.png
+│  └─ logo40x40b.png
+├─ scripts/                   # Build/utility scriptek (opcionális)
+│  └─ build-photos.mjs
+├─ tsconfig.json              # `@/*` → gyökér alias
+├─ next.config.(js|ts)        # Next beállítások (ha van)
+└─ package.json
 ```
 
+**Fontos:**
+- `tsconfig.json`:
+  ```json
+  {
+    "compilerOptions": {
+      "baseUrl": ".",
+      "paths": {
+        "@/*": ["./*"]
+      },
+      "resolveJsonModule": true,
+      "esModuleInterop": true
+    }
+  }
+  ```
+- Fordítások betöltése a locale layoutban:
+  ```ts
+  const messages = (await import(`../../messages/${locale}.json`)).default;
+  ```
 ## i18n – fordítások
 - **Hol?** `messages/<locale>.json`
 - **Használat** komponensben:
