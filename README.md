@@ -23,7 +23,7 @@ Mobil-first, többnyelvű (hu/sr/de/en) weboldal-sablon. Prod-ready alapok: i18n
 - **UI**: Tailwind CSS **v4**, `shadcn/ui` (Button, Input, Card, Sheet, Separator), `sonner` toast. Mobil-first, reszponzív header (hamburger menü).
 - **Tipográfia**: `next/font` (Inter), latin+latin-ext készletek.
 - **Dark mode**: ThemeProvider (preferenciát tiszteletben tartó világos/sötét téma).
-- **SEO**: `generateMetadata` nyelvspecifikus cím/leírás + `hreflang`, `sitemap.ts`, `robots.ts`.
+- **SEO**: `generateMetadata` nyelvspecifikus cím/leírás + `hreflang`, `app/sitemap.ts`, `app/robots.ts`.
 - **Megosztás**: Open Graph / Twitter meta (`public/og.png` ajánlott).
 - **Strukturált adatok**: JSON-LD (`Organization` + `WebSite`) a keresőknek.
 - **Kapcsolat**: `/[locale]/contact` oldal – kliens-oldali validáció, visszajelzés toasttal. (Email/DB bekötés később.)
@@ -40,19 +40,18 @@ npm i
 
 # környezeti változók (fejlesztéshez)
 cp .env.example .env.local
-# majd a .env.local-ban:
-# NEXT_PUBLIC_SITE_URL=http://localhost:3000
-
-# fejlesztői szerver
-npm run dev
-# böngésző: http://localhost:3000  → automatikus átirányítás pl. /hu
 ```
-
-**.env példány:**
+Majd a `.env.local`-ban:
 ```env
-# .env.example
+# .env.local
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
+
+Fejlesztői szerver indítása:
+```bash
+npm run dev
+```
+A böngészőben a `http://localhost:3000` cím automatikusan átirányít a beállított alapértelmezett nyelvre (pl. `/hu`).
 
 ## Parancsok
 ```bash
@@ -62,116 +61,153 @@ npm run start   # prod szerver (build után)
 npm run lint    # eslint ellenőrzés
 ```
 
-## Könyvtárstruktúra
+## Könyvtárstruktúra (root-alapú)
 ```
-src/
-  app/
-    layout.tsx                     # root layout (theme, font)
-    sitemap.ts                     # SEO – sitemap.xml
-    robots.ts                      # SEO – robots.txt
-    [locale]/
-      layout.tsx                   # locale layout (i18n provider, Header, Footer)
-      page.tsx                     # kezdőoldal
-      about/page.tsx               # rólunk
-      contact/page.tsx             # kapcsolat
-  components/
-    Header.tsx
-    HeaderClient.tsx
-    NavLink.tsx
-    LocaleSwitcher.tsx
-    ToasterPortal.tsx
-    JsonLd.tsx
-  lib/
-    site.ts                        # getBaseUrl() – abszolút URL DEV/PROD
-  i18n.ts                          # locales, defaultLocale
-messages/
-  hu.json  en.json  de.json  sr.json
-middleware.ts                      # next-intl middleware + robots/sitemap kizárás
-public/
-  logo.png                         # UI + JSON-LD logó
-  og.png                           # megosztási kép (1200x630 ajánlott)
+.
+├─ app/                       # App Router oldalak, layoutok, route-k
+│  ├─ [locale]/               # Nyelvi gyökér (hu, de, en, sr)
+│  │  ├─ layout.tsx           # Locale-specifikus provider + SEO
+│  │  ├─ page.tsx             # Kezdőoldal per lokálé
+│  │  ├─ about/page.tsx       # Rólunk
+│  │  └─ contact/page.tsx     # Kapcsolat
+│  ├─ globals.css             # Globális stílusok (Tailwind)
+│  ├─ sitemap.ts              # Sitemap.xml generálás
+│  └─ robots.ts               # Robots.txt generálás
+├─ components/                # Újrafelhasználható UI komponensek
+│  ├─ Header.tsx
+│  ├─ LocaleSwitcher.tsx
+│  ├─ ToasterPortal.tsx
+│  └─ JsonLd.tsx
+├─ lib/                       # Segédfüggvények, config
+│  └─ site.ts
+├─ messages/                  # Fordítási JSON-ok (next-intl)
+│  ├─ hu.json
+│  ├─ de.json
+│  ├─ en.json
+│  └─ sr.json
+├─ public/                    # Statikus fájlok (og.png, logo, képek)
+│  ├─ og.png
+│  └─ logo40x40b.png
+├─ scripts/                   # Build/utility scriptek (opcionális)
+│  └─ build-photos.mjs
+├─ middleware.ts              # next-intl middleware + robots/sitemap kizárás
+├─ tsconfig.json              # `@/*` → gyökér alias
+├─ next.config.js             # Next.js beállítások (ha van)
+└─ package.json
+```
+
+Fontos beállítások (`tsconfig.json`):
+```json
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "resolveJsonModule": true,
+    "esModuleInterop": true
+  }
+}
+```
+
+A fordítások betöltése a locale layoutban:
+```typescript
+const messages = (await import(`../../messages/${locale}.json`)).default;
 ```
 
 ## i18n – fordítások
-- **Hol?** `messages/<locale>.json`
-- **Használat** komponensben:
-  ```tsx
-  'use client';
-  import {useTranslations} from 'next-intl';
-  export default function Hero() {
-    const t = useTranslations();
-    return <h1>{t('Hero.title')}</h1>;
-  }
-  ```
-- **JSON minta (ne használj pontot a kulcsokban, legyen fésűzött):**
-  ```json
-  {
-    "Nav": { "home": "Kezdőlap", "about": "Rólunk", "contact": "Kapcsolat" },
-    "Hero": { "title": "Üdv a MultiWeb sablonban", "subtitle": "Reszponzív, gyors, többnyelvű alap." }
-  }
-  ```
-- **Új nyelv hozzáadása**:
-  1) Adj fájlt: `messages/it.json`
-  2) `src/i18n.ts` – `locales` tömbbe vedd fel: `export const locales = ['hu','sr','de','en','it'] as const;`
-  3) `src/app/[locale]/layout.tsx` `generateStaticParams()` automatikusan működik, ha az `i18n.ts`-ből olvasod; ha fix lista van benne, bővítsd ott is.
-  4) `sitemap.ts` `routes` változóban minden oldal szerepeljen (pl. `'/about','/contact'`), az új nyelv automatikusan bekerül.
+
+**Hol?** `messages/<locale>.json`
+
+**Használat komponensben:**
+```tsx
+'use client';
+import {useTranslations} from 'next-intl';
+
+export default function Hero() {
+  const t = useTranslations();
+  return <h1>{t('Hero.title')}</h1>;
+}
+```
+JSON minta (ne használj pontot a kulcsokban, legyen fésűzött):
+```json
+{
+  "Nav": { "home": "Kezdőlap", "about": "Rólunk", "contact": "Kapcsolat" },
+  "Hero": { "title": "Üdv a MultiWeb sablonban", "subtitle": "Reszponzív, gyors, többnyelvű alap." }
+}
+```
+
+### Új nyelv hozzáadása:
+1.  **Fájl hozzáadása**: `messages/it.json`
+2.  **Config frissítése**: `lib/i18n.ts` – `locales` tömbbe vedd fel:
+    ```typescript
+    export const locales = ['hu','sr','de','en','it'] as const;
+    ```
+3.  **Statikus paraméterek**: Ha `app/[locale]/layout.tsx` `generateStaticParams()`-ot használ, bővítsd ott is a listát.
+4.  **Sitemap**: `app/sitemap.ts` – az új nyelv automatikusan bekerül a meglévő útvonalakhoz.
 
 ## Új oldal hozzáadása
-Példa: Blog list oldal
-```
-src/app/[locale]/blog/page.tsx
-```
-Oldal létrehozása után **a sitemapban** vedd fel:
-```ts
-// src/app/sitemap.ts
+
+Példa: Blog listázó oldal létrehozása a `app/[locale]/blog/page.tsx` útvonalon.
+
+Az oldal létrehozása után a sitemap-ban is vedd fel az új útvonalat:
+```typescript
+// app/sitemap.ts
 const routes = ['', '/about', '/contact', '/blog'] as const;
 ```
 
 ## SEO
-- **Meta + hreflang**: `src/app/[locale]/layout.tsx` `generateMetadata()` – nyelvspecifikus URL-ek, cím, leírás.
-- **Open Graph / Twitter**:
-  - Tedd `public/og.png`-t (1200×630).
-  - A `generateMetadata` már hivatkozik rá.
-- **Sitemap**: `https://<domain>/sitemap.xml`  
-- **Robots**: `https://<domain>/robots.txt`
-- **JSON-LD**: `JsonLd` komponens szerver oldalon beágyazva (`Organization`, `WebSite`).
+
+-   **Meta + hreflang**: `app/[locale]/layout.tsx` `generateMetadata()` – nyelvspecifikus URL-ek, cím, leírás.
+-   **Open Graph / Twitter**: Tölts fel egy `public/og.png` képet (ajánlott méret: 1200×630). A `generateMetadata` már hivatkozik rá.
+-   **Sitemap**: `https://<domain>/sitemap.xml`
+-   **Robots**: `https://<domain>/robots.txt`
+-   **JSON-LD**: A `JsonLd` komponens szerver oldalon beágyazva (`Organization`, `WebSite`).
 
 ### Gyors ellenőrzőlista
-- `/hu`, `/en`, `/de`, `/sr` mind a saját nyelvén jelenik meg.
-- `/sitemap.xml` tartalmazza minden nyelv fő- és aloldalait.
-- `/robots.txt` tartalmazza a `Sitemap: <...>/sitemap.xml` sort.
-- Slack/Facebook/X megosztásnál helyes cím/leírás/kép látszik.
-- Rich Results Test látja az `Organization`/`WebSite` JSON-LD-t.
+-   A `/hu`, `/en`, `/de`, `/sr` útvonalak mind a saját nyelvükön jelennek meg.
+-   A `/sitemap.xml` tartalmazza minden nyelv fő- és aloldalait.
+-   A `/robots.txt` tartalmazza a `Sitemap: <...>/sitemap.xml` sort.
+-   Facebook/X megosztásnál helyes cím/leírás/kép látszik.
+-   A Google Rich Results Test látja az `Organization`/`WebSite` JSON-LD-t.
 
 ## Deploy Vercelre
-1) Push GitHubra → Vercelben **Import Project**
-2) **Environment Variables** (Project → Settings):
-   ```
-   NEXT_PUBLIC_SITE_URL = https://<a-te-projekted>.vercel.app
-   ```
-3) Deploy → ellenőrizd `/robots.txt`, `/sitemap.xml`, nyelvi oldalak.
 
-> Ha a `robots.txt` mégis a kezdőlapra ugrana: a `middleware.ts`-ben legyen kizárás `robots.txt` és `sitemap.xml` útvonalakra.
+1.  Push GitHubra → Vercelben `Import Project`.
+2.  **Environment Variables** (Project → Settings):
+    ```
+    NEXT_PUBLIC_SITE_URL=https://<a-te-projekted>.vercel.app
+    ```
+3.  Deploy után ellenőrizd a `/robots.txt`, `/sitemap.xml` és a nyelvi oldalakat.
+
+Ha a `robots.txt` a kezdőlapra irányítana, ellenőrizd, hogy a `middleware.ts`-ben ki van-e zárva a `robots.txt` és `sitemap.xml` útvonal.
 
 ## Hibaelhárítás
-- **`Module not found: Can't resolve './messages'`**  
-  Ellenőrizd a relatív importot az `src/i18n.ts`-ben, és hogy a `messages/<locale>.json` létezik.
-- **`[next-intl] Could not find i18n config`**  
-  Legyen `src/i18n.ts`, és onnan importálj mindenhol (middleware, layout).
-- **`The default export is not a React Component in "/page"`**  
-  Az oldalnak `default` exportált komponenssel kell visszaadnia JSX-et; legyen root `layout.tsx`.
-- **ESLint `Unexpected any`**  
-  Írj pontos típust (pl. `AbstractIntlMessages`, union típusok a `Locale`-hoz), vagy helyben tiltsd:  
-  `// eslint-disable-next-line @typescript-eslint/no-explicit-any`
-- **Tailwind v4 / PostCSS**  
-  `postcss.config.mjs` használja az `@tailwindcss/postcss` plugint; telepítve legyen az `autoprefixer`.
+
+-   **`Module not found: Can't resolve './messages'`**
+    Ellenőrizd a relatív importot az `app/[locale]/layout.tsx`-ban, és hogy a `messages/<locale>.json` fájl létezik-e.
+
+-   **`[next-intl] Could not find i18n config`**
+    Győződj meg róla, hogy létezik a `lib/i18n.ts`, és onnan importálsz mindenhol (`middleware`, `layout`).
+
+-   **`The default export is not a React Component in "/page"`**
+    Az oldalnak `default` exportált komponenssel kell visszaadnia JSX-et.
+
+-   **`ESLint: Unexpected any`**
+    Írj pontos típust (pl. `AbstractIntlMessages`, union típusok a `Locale`-hoz), vagy helyben tiltsd:
+    ```typescript
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ```
+
+-   **Tailwind v4 / PostCSS**
+    A `postcss.config.mjs` használja az `@tailwindcss/postcss` plugint; telepítve kell lennie az `autoprefixer`-nek is.
 
 ## Útiterv (opcionális fejlesztések)
-- Biztonsági headerek (`next.config.ts`), CSP később
-- OG-kép generátor (dinamikus szöveg/nyelv)
-- Analytics (Vercel Analytics / GA4) és Sentry
-- Form spamszűrés (Cloudflare Turnstile / hCaptcha)
-- GitHub Actions CI (build+lint PR-okra)
+-   Biztonsági headerek (`next.config.ts`), CSP
+-   OG-kép generátor (dinamikus szöveg/nyelv)
+-   Analytics (Vercel Analytics / GA4) és Sentry
+-   Form spamszűrés (Cloudflare Turnstile / hCaptcha)
+-   GitHub Actions CI (build+lint PR-okra)
 
 ## Licenc
-MIT (opcionális – igény szerint).
+MIT
